@@ -19,7 +19,6 @@ class AuthenticatedSessionController extends Controller
     public function create(Request $request): Response
     {
         return Inertia::render('auth/Login', [
-            'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
         ]);
     }
@@ -33,6 +32,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Obtain user
+        $user = Auth::user();
+        // Create auth token
+        $token = $user->createToken(name: 'auth_token')->plainTextToken;
+        
+        session(['api_token' => $token]);
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -45,6 +51,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        $request->session()->forget('api_token');
 
         return redirect('/');
     }
