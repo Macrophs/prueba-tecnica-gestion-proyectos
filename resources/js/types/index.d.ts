@@ -25,12 +25,33 @@ export type AppPageProps<T extends Record<string, unknown> = Record<string, unkn
     sidebarOpen: boolean;
 };
 
-export interface User {
+interface UserType {
     id: number;
     name: string;
-    email: string;
+    username: string;
     avatar?: string;
-    email_verified_at: string | null;
+    role: string
+}
+interface ProjectType {
+    id: number;
+    name: string;
+    user_id: number;
+    user: UserType;
+    description: string;
+    created_at: string;
+    updated_at: string;
+}
+
+interface TaskType {
+    id: number;
+    title: string;
+    description: string;
+    project_id: number
+    user_id: number;
+    user: UserType;
+    status: string;
+    start_date: string;
+    end_date: string;
     created_at: string;
     updated_at: string;
 }

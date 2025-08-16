@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import UserInfo from '@/components/molecules/UserMenuContent.vue';
+
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import type { User } from '@/types';
 import { Link, router } from '@inertiajs/vue3';
 import { LogOut, Settings } from 'lucide-vue-next';
+import UserInfo from '@/components/molecules/UserInfo.vue';
+import { UserType } from '@/types';
 
 interface Props {
-    user: User;
+    user: UserType;
 }
 
 const handleLogout = () => {
@@ -25,7 +26,7 @@ defineProps<Props>();
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
         <DropdownMenuItem :as-child="true">
-            <Link class="block w-full" :href="route('profile.edit')" prefetch as="button">
+            <Link class="block w-full cursor-pointer" :href="route('profile.edit')" prefetch as="button">
             <Settings class="mr-2 h-4 w-4" />
             Opciones
             </Link>
@@ -33,7 +34,7 @@ defineProps<Props>();
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">
-        <Link class="block w-full" method="post" :href="route('logout')" @click="handleLogout" as="button">
+        <Link class="block w-full cursor-pointer" method="post" :href="route('logout')" @click="handleLogout" as="button">
         <LogOut class="mr-2 h-4 w-4" />
         Cerrar Sesión
         </Link>

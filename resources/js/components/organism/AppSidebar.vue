@@ -11,7 +11,7 @@ import AppLogo from '@/components/atoms/AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Gestión de Proyectos',
         href: '/dashboard',
         icon: LayoutGrid,
     },
