@@ -19,32 +19,43 @@ import DeleteProject from '../molecules/modal/project/DeleteProject.vue';
 import { dialogState } from '@/composables/dialog';
 import { Link } from '@inertiajs/vue3';
 import TasksTableHeader from '../molecules/TasksTableHeader.vue';
-import { ProjectType } from '@/types';
+import { ProjectType, TaskType } from '@/types';
+import Badge from '../ui/badge/Badge.vue';
+import EditTaskModal from '../molecules/modal/task/EditTaskModal.vue';
+import DeleteTaskModal from '../molecules/modal/task/DeleteTaskModal.vue';
+import StatusTaskModal from '../molecules/modal/task/StatusTaskModal.vue';
+import AssignTaskModal from '../molecules/modal/task/AssignTaskModal.vue';
 
 const props = defineProps<{
     projectId: string;
 }>();
 
 
-
-const { items, currentPage, lastPage, goToPage, loading } = usePagination<ProjectType>("/api/projects");
+const { items, currentPage, fetchItems, lastPage, goToPage, loading, setSearchQuery, setStatusFilter } = usePagination<TaskType>(`/api/project/${props.projectId}/tasks`);
 
 const [isOpen, closeDialog] = dialogState();
+
+
+const handleDataChanged = () => {
+    fetchItems(currentPage.value); // reload pagination
+};
 
 
 </script>
 
 <template>
-    <TasksTableHeader />
+    <TasksTableHeader :projectId="props.projectId" @data-changed="handleDataChanged" @search="setSearchQuery"
+        @filter="setStatusFilter" />
     <LoaderCircle v-if="loading" class="h-12 w-12 mt-8 mx-auto animate-spin" />
     <Table v-else>
-        <TableHeader class="border-2 border-secondary rounded-2xl  ">
+        <TableHeader class="border-2 border-secondary rounded-2xl">
             <TableRow>
                 <TableHead class="w-[100px] font-extrabold ">
-                    Nombre del Proyecto
+                    Tarea
                 </TableHead>
                 <TableHead class="font-extrabold">Descripción</TableHead>
-                <TableHead class="font-extrabold">Creador</TableHead>
+                <TableHead class="font-extrabold">Estatus</TableHead>
+                <TableHead class="font-extrabold">Usuario Asignado</TableHead>
                 <TableHead class="text-center font-extrabold">
                     Opciones
                 </TableHead>
@@ -55,7 +66,7 @@ const [isOpen, closeDialog] = dialogState();
                 <TableCell class="font-medium max-w-[300px]">
 
                     <ScrollArea class="h-10  whitespace-pre-wrap break-all   ">
-                        {{ item.name }}
+                        {{ item.title }}
 
                     </ScrollArea>
 
@@ -68,24 +79,52 @@ const [isOpen, closeDialog] = dialogState();
                     </ScrollArea>
                 </TableCell>
                 <TableCell>
+                    <Badge :class="[
+                        'text-white',
+                        item.status === 'Pendiente' ? 'bg-amber-500' : '',
+                        item.status === 'En Proceso' ? 'bg-blue-500' : '',
+                        item.status === 'Finalizada' ? 'bg-green-500' : ''
+                    ]">
+                        {{ item.status }}
+                    </Badge>
+
+                </TableCell>
+                <TableCell>
                     <div class="flex gap-1 items-center">
                         <User class="w-4" />
-                        {{ item.user.username }}
+                        {{ item.user?.username || "No Asginado" }}
                     </div>
 
 
                 </TableCell>
                 <TableCell class="flex gap-5 items-center justify-center">
 
+                    <Dialog>
+                        <DialogTrigger as-child>
 
+                            <Button class="gap-1">
+                                <PencilLine />
+                                Asignar
+                            </Button>
+                        </DialogTrigger>
 
-                    <Link :href="route('project.task', { id: item.id })">
-                    <Button class="gap-1">
-                        <ListCheck />
-                        Tareas
-                    </Button>
-                    </Link>
+                        <AssignTaskModal :task="item" :onClose="() => closeDialog()" @data-changed="handleDataChanged" />
 
+                    </Dialog>
+
+                    <Dialog>
+                        <DialogTrigger as-child>
+
+                            <Button class="gap-1 bg-orange-400 hover:bg-orange-400/80">
+                                <PencilLine />
+                                Estatus
+                            </Button>
+                        </DialogTrigger>
+
+                        <StatusTaskModal :task="item" :onClose="() => closeDialog()"
+                            @data-changed="handleDataChanged" />
+
+                    </Dialog>
 
                     <Dialog>
                         <DialogTrigger as-child>
@@ -95,7 +134,9 @@ const [isOpen, closeDialog] = dialogState();
                                 Editar
                             </Button>
                         </DialogTrigger>
-                        <EditProjectModal :project="item" :onClose="() => closeDialog()" />
+
+                        <EditTaskModal :task="item" :onClose="() => closeDialog()" @data-changed="handleDataChanged" />
+
                     </Dialog>
 
                     <Dialog>
@@ -106,7 +147,10 @@ const [isOpen, closeDialog] = dialogState();
                             </Button>
 
                         </DialogTrigger>
-                        <DeleteProject :project="item" :onClose="() => closeDialog()" />
+
+                        <DeleteTaskModal :task="item" :onClose="() => closeDialog()"
+                            @data-changed="handleDataChanged" />
+
                     </Dialog>
                 </TableCell>
             </TableRow>

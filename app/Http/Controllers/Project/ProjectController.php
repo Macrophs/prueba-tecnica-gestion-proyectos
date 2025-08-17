@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Project;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Project\ProjectRequest;
 use App\Models\Project;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
@@ -21,11 +19,27 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $projects = Project::with('user')->paginate(10);
+        $search = $request->query('search', '');
+
+        $projects = Project::with('user')
+            ->when($search, function ($query) use ($search) {
+                $query->whereAny(['name', 'description'], 'LIKE', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('username', 'LIKE', "%{$search}%");
+                    });
+            })
+            ->orderBy("created_at", "desc")
+            ->paginate(10);
 
         return response()->json($projects);
+    }
+
+    public function users(int $projectId): JsonResponse
+    {
+        $project = Project::with('user')->findOrFail($projectId);
+        return response()->json($project->user);
     }
 
     public function store(ProjectRequest $request): JsonResponse
@@ -38,9 +52,24 @@ class ProjectController extends Controller
         ], 201);
     }
 
-    public function destroy(Request $request): RedirectResponse
+    public function update(ProjectRequest $request, int $id): JsonResponse
     {
+        $project = $request->modify($request, $id);
 
-        return redirect('/');
+        return response()->json([
+            'message' => 'Proyecto actualizado correctamente',
+            'data' => $project
+        ], 200);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $project = Project::findOrFail($id);
+
+        $project->delete();
+
+        return response()->json([
+            'message' => 'Proyecto eliminado correctamente'
+        ], 200);
     }
 }

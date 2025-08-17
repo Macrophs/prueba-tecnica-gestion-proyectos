@@ -22,14 +22,19 @@ import ProjectTableHeader from '../molecules/ProjectTableHeader.vue';
 import { ProjectType } from '@/types';
 
 
-const { items, currentPage, lastPage, goToPage, loading } = usePagination<ProjectType>("/api/projects");
+const { items, currentPage, fetchItems, lastPage, goToPage, loading, setSearchQuery } = usePagination<ProjectType>("/api/projects");
 
 const [isOpen, closeDialog] = dialogState();
+
+
+const handleDataChanged = () => {
+    fetchItems(currentPage.value); // reload pagination
+};
 
 </script>
 
 <template>
-    <ProjectTableHeader />
+    <ProjectTableHeader  @data-changed="handleDataChanged"  @search="setSearchQuery"  />
     <LoaderCircle v-if="loading" class="h-12 w-12 mt-8 mx-auto animate-spin" />
     <Table v-else>
         <TableHeader class="border-2 border-secondary rounded-2xl  ">
@@ -89,7 +94,7 @@ const [isOpen, closeDialog] = dialogState();
                                 Editar
                             </Button>
                         </DialogTrigger>
-                        <EditProjectModal :project="item" :onClose="() => closeDialog()" />
+                        <EditProjectModal :project="item" :onClose="() => closeDialog()"  @data-changed="handleDataChanged" />
                     </Dialog>
 
                     <Dialog>
@@ -100,7 +105,7 @@ const [isOpen, closeDialog] = dialogState();
                             </Button>
 
                         </DialogTrigger>
-                        <DeleteProject :project="item" :onClose="() => closeDialog()" />
+                        <DeleteProject :project="item" :onClose="() => closeDialog()"  @data-changed="handleDataChanged" />
                     </Dialog>
                 </TableCell>
             </TableRow>

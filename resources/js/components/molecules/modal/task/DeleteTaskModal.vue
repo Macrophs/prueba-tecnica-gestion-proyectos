@@ -10,14 +10,13 @@ import { LoaderCircle } from 'lucide-vue-next';
 import axios, { formToJSON } from 'axios';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
-import { ProjectType } from '@/types';
+import { ProjectType, TaskType } from '@/types';
 
 
 const props = defineProps<{
     onClose: (() => void);
-    project: ProjectType;
+    task: TaskType;
 }>();
-
 
 const emit = defineEmits(['data-changed']);
 
@@ -31,14 +30,14 @@ const token = page.props.auth_token;
 const submit = async () => {
     processing.value = true;
     try {
-        const res = await axios.delete(`/api/project/${props.project.id}`, {
+        const res = await axios.delete(`/api/task/${props.task.id}`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
         if (res.status === 200) {
-            toast('Proyecto', {
-                description: 'Proyecto Eliminado Correctamente',
+            toast('Tarea', {
+                description: 'Tarea Eliminada Correctamente',
             })
             props.onClose();
             emit('data-changed'); //reload data
@@ -64,7 +63,7 @@ const submit = async () => {
             </DialogDescription>
         </DialogHeader>
         <div class="italic tex text-foreground">
-            "{{ props.project.name }}"
+            "{{ props.task.title }}"
         </div>
         <div class="text-destructive">
             ¡Esta acción es irreversible!

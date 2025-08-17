@@ -17,14 +17,15 @@ import { ref } from 'vue';
 
 const props = defineProps<{
     onClose: (() => void);
+    projectId: string;
 }>();
 
 const form = useForm({
-    name: '',
+    title: '',
     description: '',
 });
 
-const emit = defineEmits(['project-created']);
+const emit = defineEmits(['task-created']);
 
 //for loader button
 const processing = ref(false);
@@ -32,23 +33,24 @@ const processing = ref(false);
 const page = usePage();
 const token = page.props.auth_token;
 
-//Create project with projectController
+//Create task with taskController
 const submit = async () => {
     processing.value = true;
     form.clearErrors();
     try {
-        const res = await axios.post('/api/project', form, {
+        const res = await axios.post(`/api/project/${props.projectId}/task`, form, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
+        console.log(res)
         if (res.status === 201) {
-            toast('Proyecto', {
-                description: 'Proyecto Creado Correctamente',
+            toast('Tarea', {
+                description: 'Tarea Creada Correctamente',
             })
             props.onClose();
             form.reset();
-            emit('project-created'); //reload data
+            emit('task-created'); //reload data
         }
     } catch (error: any) {
         if (error.response && error.response.status === 422) {
@@ -67,21 +69,21 @@ const submit = async () => {
 <template>
     <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-            <DialogTitle>Nuevo Proyecto</DialogTitle>
+            <DialogTitle>Nueva Tarea</DialogTitle>
             <DialogDescription>
-                Cree un nuevo Proyecto rellenando los siguientes datos
+                Cree un nueva Tarea rellenando los siguientes datos
             </DialogDescription>
         </DialogHeader>
 
         <form method="POST" id="dialogForm" @submit.prevent="submit">
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="name">Nombre del Proyecto</Label>
-                    <Input id="name" type="text" required autofocus autocomplete="name" v-model="form.name" />
-                    <InputError :message="form.errors.name?.[0]" />
+                    <Label for="title">Título del Tarea</Label>
+                    <Input id="title" type="text" required autofocus autocomplete="title" v-model="form.title" />
+                    <InputError :message="form.errors.title?.[0]" />
                 </div>
                 <div class="grid gap-2">
-                    <Label for="description">Descripción del Proyecto</Label>
+                    <Label for="description">Descripción del Tarea</Label>
                     <Textarea id="description" class="max-h-52" required autocomplete="description"
                         v-model="form.description" />
                     <InputError :message="form.errors.description?.[0]" />
@@ -93,7 +95,7 @@ const submit = async () => {
         <DialogFooter>
             <Button type="submit" form="dialogForm" :disabled="processing">
                 <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
-                Crear Proyecto
+                Crear Tarea
             </Button>
         </DialogFooter>
     </DialogContent>

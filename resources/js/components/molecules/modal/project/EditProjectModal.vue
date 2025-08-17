@@ -27,6 +27,8 @@ const form = useForm({
     description: props.project.description || '',
 });
 
+const emit = defineEmits(['data-changed']);
+
 //for loader button
 const processing = ref(false);
 
@@ -38,17 +40,19 @@ const submit = async () => {
     processing.value = true;
     form.clearErrors();
     try {
-        const res = await axios.post('/api/project', form, {
+        const res = await axios.put(`/api/project/${props.project.id}`, form, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        if (res.status === 201) {
+        console.log(res)
+        if (res.status === 200) {
             toast('Proyecto', {
-                description: 'Proyecto Creado Correctamente',
+                description: 'Proyecto Actualizado Correctamente',
             })
-            //props.onClose();
+            props.onClose();
             form.reset();
+            emit('data-changed'); //reload data
         }
     } catch (error: any) {
         if (error.response && error.response.status === 422) {

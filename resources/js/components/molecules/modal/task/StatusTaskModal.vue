@@ -14,17 +14,25 @@ import { LoaderCircle } from 'lucide-vue-next';
 import axios, { formToJSON } from 'axios';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
+import { ProjectType, TaskType } from '@/types';
+import Select from '@/components/ui/select/Select.vue';
+import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
+import SelectValue from '@/components/ui/select/SelectValue.vue';
+import SelectContent from '@/components/ui/select/SelectContent.vue';
+import SelectGroup from '@/components/ui/select/SelectGroup.vue';
+import SelectItem from '@/components/ui/select/SelectItem.vue';
 
 const props = defineProps<{
     onClose: (() => void);
+    task: TaskType;
 }>();
 
 const form = useForm({
-    name: '',
-    description: '',
+    status: props.task.status || '',
 });
 
-const emit = defineEmits(['project-created']);
+const emit = defineEmits(['data-changed']);
+
 
 //for loader button
 const processing = ref(false);
@@ -37,18 +45,18 @@ const submit = async () => {
     processing.value = true;
     form.clearErrors();
     try {
-        const res = await axios.post('/api/project', form, {
+        const res = await axios.put(`/api/task/${props.task.id}/status`, form, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        if (res.status === 201) {
-            toast('Proyecto', {
-                description: 'Proyecto Creado Correctamente',
+        if (res.status === 200) {
+            toast('Tarea', {
+                description: 'Estatus Editado Correctamente',
             })
             props.onClose();
             form.reset();
-            emit('project-created'); //reload data
+            emit('data-changed'); //reload data
         }
     } catch (error: any) {
         if (error.response && error.response.status === 422) {
@@ -67,33 +75,45 @@ const submit = async () => {
 <template>
     <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-            <DialogTitle>Nuevo Proyecto</DialogTitle>
+            <DialogTitle>Cambiar Estatus Tarea</DialogTitle>
             <DialogDescription>
-                Cree un nuevo Proyecto rellenando los siguientes datos
+                Cambie el estatus actual de la tarea
             </DialogDescription>
         </DialogHeader>
 
         <form method="POST" id="dialogForm" @submit.prevent="submit">
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="name">Nombre del Proyecto</Label>
-                    <Input id="name" type="text" required autofocus autocomplete="name" v-model="form.name" />
-                    <InputError :message="form.errors.name?.[0]" />
-                </div>
-                <div class="grid gap-2">
-                    <Label for="description">Descripción del Proyecto</Label>
-                    <Textarea id="description" class="max-h-52" required autocomplete="description"
-                        v-model="form.description" />
-                    <InputError :message="form.errors.description?.[0]" />
+                    <Label for="title">Estatus</Label>
+                    <Select id="status" v-model="form.status" required>
+                        <SelectTrigger class="w-full">
+                            <SelectValue placeholder="Seleccionar Estatus" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="Pendiente">
+                                    Pendiente
+                                </SelectItem>
+                                <SelectItem value="En Proceso">
+                                    En Proceso
+                                </SelectItem>
+                                <SelectItem value="Finalizada">
+                                    Finalizada
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+
+                    <InputError :message="form.errors.status?.[0]" />
                 </div>
             </div>
 
         </form>
 
         <DialogFooter>
-            <Button type="submit" form="dialogForm" :disabled="processing">
+            <Button type="submit" form="dialogForm" :disabled="processing || (form.status === props.task.status)">
                 <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
-                Crear Proyecto
+                Cambiar Estatus
             </Button>
         </DialogFooter>
     </DialogContent>

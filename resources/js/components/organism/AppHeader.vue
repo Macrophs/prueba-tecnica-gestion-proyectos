@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLogo from '@/components/atoms/AppLogo.vue';
-import AppLogoIcon from '@/components/atoms/AppLogoIcon.vue';
 import Breadcrumbs from '@/components/molecules/Breadcrumbs.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';

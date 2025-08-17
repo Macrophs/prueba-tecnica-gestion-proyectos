@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
-        protected $fillable = [
+    protected $fillable = [
         'title',
         'description',
         'status',
@@ -15,4 +15,14 @@ class Task extends Model
         'project_id',
         'user_id',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }

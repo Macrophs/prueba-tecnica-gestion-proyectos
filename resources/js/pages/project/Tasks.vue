@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { ProjectType, type BreadcrumbItem } from '@/types';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 
 import TasksTable from '@/components/organism/TasksTable.vue';
 import { useRoute } from 'ziggy-js';
@@ -25,10 +25,14 @@ onMounted(async () => {
                 Authorization: `Bearer ${token}`
             }
         });
+        console.log(data);
         project.value = data.data;
-        console.log(data)
+        if (!project.value)
+            router.visit('/dashboard');
+
     } catch (error) {
         console.log(error)
+        router.visit('/dashboard');
     } finally {
         loading.value = false;
     }

@@ -46,10 +46,10 @@ interface TaskType {
     id: number;
     title: string;
     description: string;
-    project_id: number
-    user_id: number;
-    user: UserType;
-    status: string;
+    project_id: string
+    user_id?: string;
+    user?: UserType;
+    status: "Pendiente" | "En Proceso" | "Finalizada";
     start_date: string;
     end_date: string;
     created_at: string;

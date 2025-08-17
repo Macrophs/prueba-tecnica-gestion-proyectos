@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('description');
+            $table->longText('description');
             $table->foreignIdFor(User::class);
             $table->timestamps();
         });
@@ -23,7 +23,7 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('description');
+            $table->longText('description');
             $table->enum('status', ['Pendiente', 'En Proceso', "Finalizada"]);
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();

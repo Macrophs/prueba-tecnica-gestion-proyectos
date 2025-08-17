@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import AppLogoIcon from '@/components/atoms/AppLogoIcon.vue';
 import { FolderOpenDot } from 'lucide-vue-next';
 </script>
 

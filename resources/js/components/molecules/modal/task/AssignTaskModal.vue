@@ -14,17 +14,26 @@ import { LoaderCircle } from 'lucide-vue-next';
 import axios, { formToJSON } from 'axios';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
+import { ProjectType, TaskType } from '@/types';
+import Select from '@/components/ui/select/Select.vue';
+import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
+import SelectValue from '@/components/ui/select/SelectValue.vue';
+import SelectContent from '@/components/ui/select/SelectContent.vue';
+import SelectGroup from '@/components/ui/select/SelectGroup.vue';
+import SelectItem from '@/components/ui/select/SelectItem.vue';
+import AssignUserSelect from '@/components/atoms/AssignUserSelect.vue';
 
 const props = defineProps<{
     onClose: (() => void);
+    task: TaskType;
 }>();
 
 const form = useForm({
-    name: '',
-    description: '',
+    user_id: props.task.user_id,
 });
 
-const emit = defineEmits(['project-created']);
+const emit = defineEmits(['data-changed']);
+
 
 //for loader button
 const processing = ref(false);
@@ -32,23 +41,28 @@ const processing = ref(false);
 const page = usePage();
 const token = page.props.auth_token;
 
+const handleUserChange = (value: string) => {
+    form.user_id = value;
+};
+
 //Create project with projectController
 const submit = async () => {
     processing.value = true;
     form.clearErrors();
+    console.log(form.user_id)
     try {
-        const res = await axios.post('/api/project', form, {
+        const res = await axios.put(`/api/task/${props.task.id}/assign-user`, form, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        if (res.status === 201) {
-            toast('Proyecto', {
-                description: 'Proyecto Creado Correctamente',
+        if (res.status === 200) {
+            toast('Asignación', {
+                description: 'Usuario Asignado Correctamente',
             })
             props.onClose();
             form.reset();
-            emit('project-created'); //reload data
+            emit('data-changed'); //reload data
         }
     } catch (error: any) {
         if (error.response && error.response.status === 422) {
@@ -67,33 +81,24 @@ const submit = async () => {
 <template>
     <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-            <DialogTitle>Nuevo Proyecto</DialogTitle>
+            <DialogTitle>Asignar Usuario</DialogTitle>
             <DialogDescription>
-                Cree un nuevo Proyecto rellenando los siguientes datos
+                Asigne un usuario a la tarea
             </DialogDescription>
         </DialogHeader>
 
         <form method="POST" id="dialogForm" @submit.prevent="submit">
             <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="name">Nombre del Proyecto</Label>
-                    <Input id="name" type="text" required autofocus autocomplete="name" v-model="form.name" />
-                    <InputError :message="form.errors.name?.[0]" />
-                </div>
-                <div class="grid gap-2">
-                    <Label for="description">Descripción del Proyecto</Label>
-                    <Textarea id="description" class="max-h-52" required autocomplete="description"
-                        v-model="form.description" />
-                    <InputError :message="form.errors.description?.[0]" />
-                </div>
+                <AssignUserSelect :project-id="props.task.project_id" :model-value="form.user_id"
+                    @update:model-value="handleUserChange" />
             </div>
 
         </form>
 
         <DialogFooter>
-            <Button type="submit" form="dialogForm" :disabled="processing">
+            <Button type="submit" form="dialogForm" :disabled="processing || (form.user_id === props.task.user_id)">
                 <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
-                Crear Proyecto
+                Asignar
             </Button>
         </DialogFooter>
     </DialogContent>

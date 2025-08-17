@@ -7,6 +7,8 @@ export function usePagination<T>(url: string) {
     const currentPage = ref(1);
     const lastPage = ref(1);
     const loading = ref(false);
+    const searchQuery = ref('');
+    const statusFilter = ref<string | null>(null);
 
     //obtain token
     const page = usePage();
@@ -16,7 +18,11 @@ export function usePagination<T>(url: string) {
         loading.value = true;
         try {
             const { data } = await axios.get(url, {
-                params: { page },
+                params: {
+                    page,
+                    search: searchQuery.value,
+                    status: statusFilter.value
+                },
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -24,7 +30,7 @@ export function usePagination<T>(url: string) {
             items.value = data.data;
             currentPage.value = data.current_page;
             lastPage.value = data.last_page;
-            console.log(items.value)
+
         } catch (error) {
             console.log(error)
         } finally {
@@ -38,6 +44,16 @@ export function usePagination<T>(url: string) {
         }
     }
 
+    function setSearchQuery(query: string) {
+        searchQuery.value = query;
+        fetchItems(1);
+    }
+
+    function setStatusFilter(status: string | null) {
+        statusFilter.value = status;
+        fetchItems(1);
+    }
+
     onMounted(() => {
         fetchItems();
     });
@@ -48,6 +64,8 @@ export function usePagination<T>(url: string) {
         lastPage,
         fetchItems,
         goToPage,
+        setSearchQuery,
+        setStatusFilter,
         loading
     };
 }

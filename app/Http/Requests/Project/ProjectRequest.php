@@ -10,14 +10,6 @@ use Illuminate\Support\Facades\Auth;
 class ProjectRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -26,8 +18,8 @@ class ProjectRequest extends FormRequest
     {
 
         return [
-            'name' => ['required', 'string','max:120'],
-            'description' => ['required', 'string',"max:1000"],
+            'name' => ['required', 'string', 'max:120'],
+            'description' => ['required', 'string', "max:1000"],
         ];
     }
 
@@ -38,6 +30,19 @@ class ProjectRequest extends FormRequest
             'description' => $request->description,
             'user_id' => Auth::id(),
         ]);
+
+        return $project;
+    }
+
+    public function modify(Request $request, int $id): Project
+    {
+        $project = Project::findOrFail($id);
+
+        $project->update([
+            'name' => $request->name,
+            'description' => $request->description
+        ]);
+
 
         return $project;
     }
