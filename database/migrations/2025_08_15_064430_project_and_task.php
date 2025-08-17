@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->longText('description');
-            $table->foreignIdFor(User::class);
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->enum('status', ['Pendiente', 'En Proceso', "Finalizada"]);
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
-            $table->foreignIdFor(Project::class);
+            $table->foreignIdFor(Project::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(User::class)->nullable();
             $table->timestamps();
         });

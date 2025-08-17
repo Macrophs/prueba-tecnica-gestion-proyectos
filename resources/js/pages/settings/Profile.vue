@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 
-import DeleteUser from '@/components/molecules/DeleteUser.vue';
 import HeadingSmall from '@/components/atoms/HeadingSmall.vue';
 import InputError from '@/components/atoms/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -68,7 +67,7 @@ const submit = () => {
                             leave-active-class="transition ease-in-out"
                             leave-to-class="opacity-0"
                         >
-                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Guardar</p>
+                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Guardado</p>
                         </Transition>
                     </div>
                 </form>

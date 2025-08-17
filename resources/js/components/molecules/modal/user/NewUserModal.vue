@@ -14,26 +14,24 @@ import { LoaderCircle } from 'lucide-vue-next';
 import axios, { formToJSON } from 'axios';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
-import { ProjectType, TaskType } from '@/types';
 import Select from '@/components/ui/select/Select.vue';
 import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
 import SelectValue from '@/components/ui/select/SelectValue.vue';
 import SelectContent from '@/components/ui/select/SelectContent.vue';
 import SelectGroup from '@/components/ui/select/SelectGroup.vue';
 import SelectItem from '@/components/ui/select/SelectItem.vue';
-import AssignUserSelect from '@/components/atoms/AssignUserSelect.vue';
 
 const props = defineProps<{
     onClose: (() => void);
-    task: TaskType;
 }>();
 
 const form = useForm({
-    user_id: props.task.user_id,
+    name: '',
+    username: '',
+    role: '',
 });
 
-const emit = defineEmits(['data-changed']);
-
+const emit = defineEmits(['user-created']);
 
 //for loader button
 const processing = ref(false);
@@ -41,27 +39,23 @@ const processing = ref(false);
 const page = usePage();
 const token = page.props.auth_token;
 
-const handleUserChange = (value: string) => {
-    form.user_id = value;
-};
-
-//Create project with projectController
+//Create user with userController
 const submit = async () => {
     processing.value = true;
     form.clearErrors();
     try {
-        const res = await axios.put(`/api/task/${props.task.id}/assign-user`, form, {
+        const res = await axios.post('/api/user', form, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        if (res.status === 200) {
-            toast('Asignación', {
-                description: 'Usuario Asignado Correctamente',
+        if (res.status === 201) {
+            toast('Usuario', {
+                description: 'Usuario Creado Correctamente',
             })
             props.onClose();
             form.reset();
-            emit('data-changed'); //reload data
+            emit('user-created'); //reload data
         }
     } catch (error: any) {
         if (error.response && error.response.status === 422) {
@@ -80,24 +74,58 @@ const submit = async () => {
 <template>
     <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-            <DialogTitle>Asignar Usuario</DialogTitle>
+            <DialogTitle>Nuevo Usuario</DialogTitle>
             <DialogDescription>
-                Asigne un usuario a la tarea
+                Cree un nuevo Usuario rellenando los siguientes datos
             </DialogDescription>
         </DialogHeader>
 
         <form method="POST" id="dialogForm" @submit.prevent="submit">
             <div class="grid gap-6">
-                <AssignUserSelect :project-id="props.task.project_id" :model-value="form.user_id"
-                    @update:model-value="handleUserChange" />
+                <div class="grid gap-2">
+                    <Label for="name">Nombre</Label>
+                    <Input id="name" type="text" required autofocus autocomplete="name" v-model="form.name" />
+                    <InputError :message="form.errors.name?.[0]" />
+                </div>
+                <div class="grid gap-2">
+                    <Label for="username">Nombre de Usuario</Label>
+                    <Input id="username" type="text" required autofocus autocomplete="username"
+                        v-model="form.username" />
+                    <InputError :message="form.errors.username?.[0]" />
+                </div>
+                <div class="grid gap-2">
+                    <Label for="username">Rol del Usuario</Label>
+                    <Select v-model="form.role" required>
+                        <SelectTrigger class="w-full">
+                            <SelectValue placeholder="Seleccionar usuario" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="Develop">
+                                    Develop
+                                </SelectItem>
+                                <SelectItem value="Admin">
+                                    Admin
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <InputError :message="form.errors.role?.[0]" />
+                </div>
+
+
+
             </div>
 
         </form>
-
+        <span class="text-sm text-gray-500  text-center italic">
+            La contraseña por defecto será el mismo nombre de usuario
+        </span>
         <DialogFooter>
-            <Button type="submit" form="dialogForm" :disabled="processing || (form.user_id === props.task.user_id)">
+
+            <Button type="submit" form="dialogForm" :disabled="processing || form.role === ''">
                 <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
-                Asignar
+                Crear Usuario
             </Button>
         </DialogFooter>
     </DialogContent>

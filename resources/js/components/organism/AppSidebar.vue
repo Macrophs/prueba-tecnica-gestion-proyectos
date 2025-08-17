@@ -4,16 +4,31 @@ import NavMain from '@/components/organism/NavMain.vue';
 import NavUser from '@/components/organism/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, Folder, LayoutGrid, Users2 } from 'lucide-vue-next';
 import AppLogo from '@/components/atoms/AppLogo.vue';
 
+const page = usePage();
+const user = page.props.auth.user;
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Gestión de Proyectos',
         href: '/dashboard',
         icon: LayoutGrid,
+    },
+];
+
+const mainNavItemsAdmin: NavItem[] = [
+    {
+        title: 'Gestión de Proyectos',
+        href: '/dashboard',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Gestión de Usuarios',
+        href: '/user',
+        icon: Users2,
     },
 ];
 
@@ -34,7 +49,7 @@ const mainNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain :items="user.role === 'Admin' ? mainNavItemsAdmin : mainNavItems" />
         </SidebarContent>
 
         <SidebarFooter>

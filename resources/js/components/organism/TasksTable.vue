@@ -9,13 +9,13 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { usePagination } from '@/composables/usePagination';
-import { ListCheck, LoaderCircle, PencilLine, Trash, User } from 'lucide-vue-next';
+import { ArrowLeftCircle, ListCheck, LoaderCircle, PencilLine, Trash, User } from 'lucide-vue-next';
 import Button from '../ui/button/Button.vue';
 import ScrollArea from '../ui/scroll-area/ScrollArea.vue';
 import Dialog from '../ui/dialog/Dialog.vue';
 import DialogTrigger from '../ui/dialog/DialogTrigger.vue';
 import EditProjectModal from '../molecules/modal/project/EditProjectModal.vue';
-import DeleteProject from '../molecules/modal/project/DeleteProject.vue';
+import DeleteProject from '../molecules/modal/project/DeleteProjectModal.vue';
 import { dialogState } from '@/composables/dialog';
 import { Link } from '@inertiajs/vue3';
 import TasksTableHeader from '../molecules/TasksTableHeader.vue';
@@ -44,6 +44,13 @@ const handleDataChanged = () => {
 </script>
 
 <template>
+    <Link :href="route('dashboard')">
+    <Button variant="ghost" class="w-fit">
+        <ArrowLeftCircle class="size-4" />
+        Regresar
+    </Button>
+    </Link>
+
     <TasksTableHeader :projectId="props.projectId" @data-changed="handleDataChanged" @search="setSearchQuery"
         @filter="setStatusFilter" />
     <LoaderCircle v-if="loading" class="h-12 w-12 mt-8 mx-auto animate-spin" />
@@ -108,7 +115,8 @@ const handleDataChanged = () => {
                             </Button>
                         </DialogTrigger>
 
-                        <AssignTaskModal :task="item" :onClose="() => closeDialog()" @data-changed="handleDataChanged" />
+                        <AssignTaskModal :task="item" :onClose="() => closeDialog()"
+                            @data-changed="handleDataChanged" />
 
                     </Dialog>
 

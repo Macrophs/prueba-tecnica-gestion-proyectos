@@ -23,12 +23,27 @@ class ProjectController extends Controller
     {
         $search = $request->query('search', '');
 
-        $projects = Project::with('user')
+        $projects = Project::with(['user', 'tasks'])
             ->when($search, function ($query) use ($search) {
                 $query->whereAny(['name', 'description'], 'LIKE', "%{$search}%")
                     ->orWhereHas('user', function ($q) use ($search) {
                         $q->where('username', 'LIKE', "%{$search}%");
                     });
+            })
+            ->orderBy("created_at", "desc")
+            ->paginate(10);
+
+        return response()->json($projects);
+    }
+
+    public function byUser(int $userId, Request $request): JsonResponse
+    {
+        $search = $request->query('search', '');
+
+        $projects = Project::with(['user', 'tasks'])
+            ->where('user_id', $userId)
+            ->when($search, function ($query) use ($search) {
+                $query->whereAny(['name', 'description'], 'LIKE', "%{$search}%");
             })
             ->orderBy("created_at", "desc")
             ->paginate(10);

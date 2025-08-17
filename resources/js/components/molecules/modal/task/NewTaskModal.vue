@@ -43,7 +43,6 @@ const submit = async () => {
                 Authorization: `Bearer ${token}`
             }
         });
-        console.log(res)
         if (res.status === 201) {
             toast('Tarea', {
                 description: 'Tarea Creada Correctamente',

@@ -9,7 +9,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { usePagination } from '@/composables/usePagination';
-import { ListCheck, LoaderCircle, PencilLine, Trash, User } from 'lucide-vue-next';
+import { AlertCircle, Check, Clock, ListCheck, LoaderCircle, PencilLine, Trash, User } from 'lucide-vue-next';
 import Button from '../ui/button/Button.vue';
 import ScrollArea from '../ui/scroll-area/ScrollArea.vue';
 import Dialog from '../ui/dialog/Dialog.vue';
@@ -17,14 +17,18 @@ import DialogTrigger from '../ui/dialog/DialogTrigger.vue';
 import EditProjectModal from '../molecules/modal/project/EditProjectModal.vue';
 import DeleteProject from '../molecules/modal/project/DeleteProjectModal.vue';
 import { dialogState } from '@/composables/dialog';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import ProjectTableHeader from '../molecules/ProjectTableHeader.vue';
 import { ProjectType } from '@/types';
 import ProgressBar from '../atoms/ProgressBar.vue';
+import Badge from '../ui/badge/Badge.vue';
 import BagdeTaskStatus from '../atoms/BagdeTaskStatus.vue';
 
 
-const { items, currentPage, fetchItems, lastPage, goToPage, loading, setSearchQuery } = usePagination<ProjectType>("/api/projects");
+const page = usePage();
+const user = page.props.auth.user;
+
+const { items, currentPage, fetchItems, lastPage, goToPage, loading, setSearchQuery } = usePagination<ProjectType>(`/api/projects/user/${user.id}`);
 
 const [isOpen, closeDialog] = dialogState();
 

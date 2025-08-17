@@ -30,7 +30,8 @@ interface UserType {
     name: string;
     username: string;
     avatar?: string;
-    role: string
+    role: string;
+    created_at:string;
 }
 interface ProjectType {
     id: number;
@@ -40,6 +41,8 @@ interface ProjectType {
     description: string;
     created_at: string;
     updated_at: string;
+    completion_percentage: string;
+    tasks_by_status?: Record<string, number>;
 }
 
 interface TaskType {

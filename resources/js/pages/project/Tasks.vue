@@ -13,6 +13,7 @@ const route = useRoute();
 const projectId = route().params.id;
 const page = usePage();
 const token = page.props.auth_token;
+const user = page.props.auth.user;
 
 const loading = ref<Boolean>(false);
 const project = ref<ProjectType>();
@@ -25,10 +26,16 @@ onMounted(async () => {
                 Authorization: `Bearer ${token}`
             }
         });
-        console.log(data);
+
         project.value = data.data;
+
         if (!project.value)
             router.visit('/dashboard');
+
+        // Check if the user is not an admin and does not own the project
+        if (user.rol !== 'Admin' && project.value?.user_id !== user.id)
+            router.visit('/dashboard');
+
 
     } catch (error) {
         console.log(error)

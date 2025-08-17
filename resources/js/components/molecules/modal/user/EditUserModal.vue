@@ -14,17 +14,24 @@ import { LoaderCircle } from 'lucide-vue-next';
 import axios, { formToJSON } from 'axios';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
-import { ProjectType } from '@/types';
+import { ProjectType, UserType } from '@/types';
+import Select from '@/components/ui/select/Select.vue';
+import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
+import SelectValue from '@/components/ui/select/SelectValue.vue';
+import SelectContent from '@/components/ui/select/SelectContent.vue';
+import SelectGroup from '@/components/ui/select/SelectGroup.vue';
+import SelectItem from '@/components/ui/select/SelectItem.vue';
 
 
 const props = defineProps<{
-    onClose: (() => void) ;
-    project: ProjectType;
+    onClose: (() => void);
+    user: UserType;
 }>();
 
 const form = useForm({
-    name: props.project.name ||'',
-    description: props.project.description || '',
+    name: props.user.name || '',
+    username: props.user.username || '',
+    role: props.user.role || '',
 });
 
 const emit = defineEmits(['data-changed']);
@@ -40,14 +47,14 @@ const submit = async () => {
     processing.value = true;
     form.clearErrors();
     try {
-        const res = await axios.put(`/api/project/${props.project.id}`, form, {
+        const res = await axios.put(`/api/user/${props.user.id}`, form, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
         if (res.status === 200) {
-            toast('Proyecto', {
-                description: 'Proyecto Actualizado Correctamente',
+            toast('Usuario', {
+                description: 'Usuario Actualizado Correctamente',
             })
             props.onClose();
             form.reset();
@@ -70,33 +77,54 @@ const submit = async () => {
 <template>
     <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-            <DialogTitle>Editar Proyecto</DialogTitle>
+            <DialogTitle>Editar Usuario</DialogTitle>
             <DialogDescription>
-              Cambie la información general del proyecto
+                Cambie la información del Usuario
             </DialogDescription>
         </DialogHeader>
 
         <form method="POST" id="dialogForm" @submit.prevent="submit">
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="name">Nombre del Proyecto</Label>
-                    <Input id="name" type="text" required autocomplete="name" v-model="form.name" />
+                    <Label for="name">Nombre</Label>
+                    <Input id="name" type="text" required autofocus autocomplete="name" v-model="form.name" />
                     <InputError :message="form.errors.name?.[0]" />
                 </div>
                 <div class="grid gap-2">
-                    <Label for="description">Descripción del Proyecto</Label>
-                    <Textarea id="description" class="max-h-52" required autocomplete="description"
-                        v-model="form.description" />
-                    <InputError :message="form.errors.description?.[0]" />
+                    <Label for="username">Nombre de Usuario</Label>
+                    <Input id="username" type="text" required autofocus autocomplete="username"
+                        v-model="form.username" />
+                    <InputError :message="form.errors.username?.[0]" />
                 </div>
-            </div>
+                <div class="grid gap-2">
+                    <Label for="username">Rol del Usuario</Label>
+                    <Select v-model="form.role" required>
+                        <SelectTrigger class="w-full">
+                            <SelectValue placeholder="Seleccionar usuario" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="Develop">
+                                    Develop
+                                </SelectItem>
+                                <SelectItem value="Admin">
+                                    Admin
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <InputError :message="form.errors.role?.[0]" />
+                </div>
 
+
+
+            </div>
         </form>
 
         <DialogFooter>
             <Button type="submit" form="dialogForm" :disabled="processing">
                 <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
-                Editar Proyecto
+                Editar Usuario
             </Button>
         </DialogFooter>
     </DialogContent>
